@@ -1,3 +1,6 @@
+# KCG modifications -- make loading hdf5 file a read-only operation so (1) h5py doesn't complain 
+# and (2) file modification times aren't changed when reading in a file
+
 # -*- coding: utf-8 -*-
 import h5py
 import yaml
@@ -11,15 +14,15 @@ TYPEID = '_type_'
 
 
 @contextmanager
-def hdf_file(hdf, lazy=True, *args, **kwargs):
+def hdf_file(hdf, mode='r', lazy=False):
     """Context manager yields h5 file if hdf is str,
     otherwise just yield hdf as is."""
     if isinstance(hdf, str):
         if not lazy:
-            with h5py.File(hdf, *args, **kwargs) as hdf:
+            with h5py.File(hdf, mode) as hdf:
                 yield hdf
         else:
-            yield h5py.File(hdf, *args, **kwargs)
+            yield h5py.File(hdf, mode)
     else:
         yield hdf
 
@@ -90,7 +93,7 @@ class LazyHdfDict(UserDict):
         return tuple(self.keys())
             
 
-def load(hdf, lazy=True, unpacker=unpack_dataset, *args, **kwargs):
+def load(hdf, lazy=False, unpacker=unpack_dataset):
     """Returns a dictionary containing the
     groups as keys and the datasets as values
     from given hdf file.
@@ -126,7 +129,7 @@ def load(hdf, lazy=True, unpacker=unpack_dataset, *args, **kwargs):
 
         return datadict
 
-    with hdf_file(hdf, lazy=lazy, *args, **kwargs) as hdf:
+    with hdf_file(hdf, mode='r', lazy=lazy) as hdf:
         if lazy:
             data = LazyHdfDict(_h5file=hdf)
         else:
@@ -166,7 +169,7 @@ def pack_dataset(hdfobject, key, value):
         # if this fails again, restructure your data!   
 
 
-def dump(data, hdf, packer=pack_dataset, *args, **kwargs):
+def dump(data, hdf, packer=pack_dataset):
     """Adds keys of given dict as groups and values as datasets
     to the given hdf-file (by string or object) or group object.
 
@@ -199,6 +202,6 @@ def dump(data, hdf, packer=pack_dataset, *args, **kwargs):
             else:
                 packer(hdfobject, key, value)
 
-    with hdf_file(hdf, *args, **kwargs) as hdf:
+    with hdf_file(hdf, mode='w') as hdf:
         _recurse(data, hdf)
         return hdf
