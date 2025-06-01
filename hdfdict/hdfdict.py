@@ -9,7 +9,10 @@ from datetime import datetime
 try:
     from numpy import string_
 except ImportError:
-    from numpy import bytes_ as string_
+    try:
+        from numpy.compat import string_
+    except ImportError:
+        from numpy import bytes_ as string_
 from contextlib import contextmanager
 
 
