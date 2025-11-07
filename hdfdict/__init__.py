@@ -35,13 +35,12 @@ print(res)
 from .hdfdict import load, dump
 
 # Get version from package metadata
+# importlib.metadata is available in Python 3.8+ (we require 3.9+)
+from importlib.metadata import version, PackageNotFoundError
+
 try:
-    from importlib.metadata import version
     __version__ = version('hdfdict')
-except (ImportError, ModuleNotFoundError):
-    # Python 3.7 compatibility or when importlib.metadata is not available
-    __version__ = '0.3.1'
-except Exception:
+except PackageNotFoundError:
     # Fallback for when package is not installed (e.g., development mode)
     __version__ = '0.3.1'
 
