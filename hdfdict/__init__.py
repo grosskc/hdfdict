@@ -38,6 +38,9 @@ from .hdfdict import load, dump
 try:
     from importlib.metadata import version
     __version__ = version('hdfdict')
+except (ImportError, ModuleNotFoundError):
+    # Python 3.7 compatibility or when importlib.metadata is not available
+    __version__ = '0.3.1'
 except Exception:
     # Fallback for when package is not installed (e.g., development mode)
     __version__ = '0.3.1'
