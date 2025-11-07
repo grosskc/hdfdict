@@ -33,8 +33,15 @@ print(res)
 """
 
 from .hdfdict import load, dump
-import pkg_resources as __pkg_resources
 
-__version__ = __pkg_resources.require('hdfdict')[0].version
+# Get version from package metadata
+# importlib.metadata is available in Python 3.8+ (we require 3.9+)
+from importlib.metadata import version, PackageNotFoundError
+
+try:
+    __version__ = version('hdfdict')
+except PackageNotFoundError:
+    # Fallback for when package is not installed (e.g., development mode)
+    __version__ = '0.3.1'
 
 __all__ = ['load', 'dump']
